@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  truffle:
+    build: .
+    container_name: truffle
+    networks:
+      - dev-net
+    volumes:
+      - ./:/home/app
+      - ./abi:/home/app/abi
+      - /home/app/node_modules
+    depends_on:
+      - ganache
+  app-ui:
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    container_name: app-ui
+    ports:
+      - "3000:3000"
+    networks:
+      - dev-net
+    volumes:
+      - ./client:/home/app-ui
+      - ./abi:/home/app-ui/src/contracts
+      - /home/app-ui/node_modules
+  ganache:
+    image: "trufflesuite/ganache-cli:latest"
+    restart: unless-stopped
+    networks:
+      - dev-net
+    ports:
+      - "8545:8545"
+volumes:
+  abi:
+networks:
+  dev-net:
