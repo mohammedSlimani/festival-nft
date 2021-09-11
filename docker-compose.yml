@@ -8,7 +8,7 @@ services:
     volumes:
       - ./:/home/app
       - ./abi:/home/app/abi
-      - /home/app/node_modules
+      - ./node_modules:/home/app/node_modules
     depends_on:
       - ganache
   app-ui:
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./client:/home/app-ui
       - ./abi:/home/app-ui/src/contracts
-      - /home/app-ui/node_modules
+      - ./client/node_modules:/home/app-ui/node_modules
   ganache:
     image: "trufflesuite/ganache-cli:latest"
     restart: unless-stopped

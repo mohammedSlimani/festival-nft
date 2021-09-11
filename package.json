@@ -1,0 +1,26 @@
+{
+  "name": "festival-nft",
+  "version": "1.0.0",
+  "description": "Festival tickets as nft",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohammedSlimani/festival-nft.git"
+  },
+  "author": "Mohammed Slimani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mohammedSlimani/festival-nft/issues"
+  },
+  "homepage": "https://github.com/mohammedSlimani/festival-nft#readme"
+}
