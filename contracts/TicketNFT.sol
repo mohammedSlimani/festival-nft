@@ -10,9 +10,10 @@ contract TicketNFT is ERC721 {
     Counters.Counter private ticketIds;
 
     struct Ticket {
-        uint256 price;
+        uint256 price; // current Value of the ticket (latest price the ticket was bought for)
+        uint256 sellingPrice; // price to pay to buy the ticket is foSale
         uint256 id; // for querying purposes
-        address owner;
+        bool forSale;
     }
 
     mapping(uint256 => Ticket) public tickets; // ticketId to ticket
@@ -43,17 +44,18 @@ contract TicketNFT is ERC721 {
     ===== Modifiers ====== END
     */
 
-    function mint (address _recipient, uint256 _numberOfTicket) public virtual onlyOrganizer onlyWhenTicketsAvailable(_numberOfTicket){
+    function mint (uint256 _numberOfTicket) public virtual onlyOrganizer onlyWhenTicketsAvailable(_numberOfTicket){
         for (uint i = 0; i < _numberOfTicket; i++) {
             ticketIds.increment();
             uint256 ticketId = ticketIds.current();
-            _safeMint(_recipient, ticketId);
+            _safeMint(organizer, ticketId);
             tickets[ticketId] = Ticket({
                 price: initTicketPrice,
+                sellingPrice: initTicketPrice,
                 id: ticketId,
-                owner: _recipient
+                forSale: true
             });
-            accountToTickets[_recipient].push(ticketId);
+            accountToTickets[organizer].push(ticketId);
         }
     }
 
@@ -63,14 +65,21 @@ contract TicketNFT is ERC721 {
         return _sellingPrice < (tickets[_ticketId].price * 110) / 100;
     }
 
-    function sellTicket (address _from, address _to, uint256 _ticketId, uint256 _sellingPrice) public {
-        require(_from == msg.sender, "Only owner of ticket can sell");
+    function setTicketForSale (uint256 _ticketId, bool _forSale, uint256 _sellingPrice) public {
+        require(ownerOf(_ticketId) == msg.sender, "should be the owner of the ticket");
+        tickets[_ticketId].forSale = _forSale;
         require(canSellTicketForPrice(_ticketId, _sellingPrice), "Price is higher than 110% of previous sale");
-        require(_to != organizer, "Can't sell to the organizer");
-        _transfer(_from, _to, _ticketId);
-        tickets[_ticketId].price = _sellingPrice;
-        tickets[_ticketId].owner = _to;
-        accountToTickets[_to].push(_ticketId);
+        tickets[_ticketId].sellingPrice = _sellingPrice;
+    }
+
+    function buyTicket(uint256 _ticketId) public {
+        require(msg.sender != organizer, "Organizer cant buy tickets");
+        require(ownerOf(_ticketId) != msg.sender, "You already own this ticket");
+        require(tickets[_ticketId].forSale, "Ticket is not for sale");
+        _transfer(ownerOf(_ticketId), msg.sender, _ticketId);
+        tickets[_ticketId].price = tickets[_ticketId].sellingPrice;
+        tickets[_ticketId].forSale = false;
+        accountToTickets[msg.sender].push(_ticketId);
         // We dont remove the ticketId from the accountToTickets[_from] because it is very expensive
         // Querying shouldn't be done in the blockchain in the first place
         // Implementing a server that can act as a cache is the ideal solution
@@ -86,7 +95,7 @@ contract TicketNFT is ERC721 {
         uint totalPossibleTicketsOwnedNumber = accountToTickets[_account].length;
         for (uint256 i = 0; i < totalPossibleTicketsOwnedNumber; i++) {
             uint256 ticketId = accountToTickets[_account][i];
-            if (tickets[ticketId].owner == _account) {
+            if (ownerOf(ticketId) == _account) {
                 ticketsOfAccount[totalFound] = tickets[ticketId];
                 totalFound += 1;
                 if (balanceOfAccount == totalFound) { // optimization
@@ -97,5 +106,7 @@ contract TicketNFT is ERC721 {
         return ticketsOfAccount;
     }
 
-
+    function getPriceOfTicket (uint256 _ticketId) public view returns(uint256) {
+        return tickets[_ticketId].sellingPrice;
+    }
 }

@@ -2,14 +2,22 @@
 pragma solidity ^0.8.0;
 
 import "./TicketNFT.sol";
+import "./TicketCoin.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TicketFactory is Ownable {
-    event Return(address ticket);
+    TicketNFT private ticketNFT;
+    TicketCoin private ticketCoin;
+    address private organizer;
 
-    function create(uint256 _initTicketPrice, uint256 _totalTickets) public onlyOwner returns (TicketNFT) {
-        TicketNFT ticket = new TicketNFT(msg.sender, _initTicketPrice, _totalTickets);
-        emit Return(address(ticket));
-        return ticket;
+    constructor (uint256 _initTicketPrice, uint256 _totalTickets) {
+        organizer = msg.sender;
+        ticketCoin = new TicketCoin();
+        ticketNFT = new TicketNFT(organizer, _initTicketPrice, _totalTickets);
+    }
+
+    function buyTicket (uint256 _ticketId) public {
+        ticketCoin.transferFrom(msg.sender, ticketNFT.ownerOf(_ticketId), ticketNFT.getPriceOfTicket(_ticketId));
+        ticketNFT.buyTicket(_ticketId);
     }
 }
