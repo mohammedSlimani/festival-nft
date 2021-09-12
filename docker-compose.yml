@@ -25,6 +25,9 @@ services:
       - ./ganache_data:/ganache_data
       - ./abi:/home/app-ui/src/contracts
       - ./client/node_modules:/home/app-ui/node_modules
+    depends_on:
+      - ganache
+      - truffle
   ganache:
     image: "trufflesuite/ganache-cli:latest"
     restart: unless-stopped

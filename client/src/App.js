@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
+import SimpleStorageContract from "./contracts/Festival.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
@@ -14,6 +14,9 @@ class App extends Component {
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
+      const organiser = await web3.eth.getCoinbase();
+      console.log('organizer', organiser)
+      console.log('accounts', accounts)
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
@@ -22,6 +25,9 @@ class App extends Component {
         SimpleStorageContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
+
+      console.log('instance', instance)
+      console.log('methods:', instance.methods)
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
@@ -39,10 +45,10 @@ class App extends Component {
     const { accounts, contract } = this.state;
 
     // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+    await contract.methods.createFactory(5, 20).send({ from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
+    const response = await contract.methods.factory().call();
 
     // Update state with the result.
     this.setState({ storageValue: response });
