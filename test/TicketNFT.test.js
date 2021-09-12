@@ -70,6 +70,13 @@ contract("TicketNFT", accounts => {
         }
     })
 
+    xit("can mint 1000 tickets", async () => {
+        // Actually this is very bad. Shouldn't mint all 1000,
+        // To make it better only mint ticket when the user wants to buy it.
+
+        await assert.doesNotReject(createAndMintAll(10, 1000, organizer))
+    })
+
     describe("Buying tickets", () => {
         const initPrice = 100
         const totalTickets = 10
