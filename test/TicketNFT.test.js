@@ -1,10 +1,8 @@
 const assert = require("assert");
 const TicketNFT = artifacts.require("TicketNFT")
-const TicketFactory = artifacts.require("TicketFactory")
 
 contract("TicketNFT", accounts => {
     const [organizer, alice, bob] = accounts
-    let ticketFactory
 
     /**
      * Helper method to create a ticketNFT interface
