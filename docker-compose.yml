@@ -22,6 +22,7 @@ services:
       - dev-net
     volumes:
       - ./client:/home/app-ui
+      - ./ganache_data:/ganache_data
       - ./abi:/home/app-ui/src/contracts
       - ./client/node_modules:/home/app-ui/node_modules
   ganache:
@@ -31,6 +32,20 @@ services:
       - dev-net
     ports:
       - "8545:8545"
+    entrypoint:
+      - node
+      - /app/ganache-core.docker.cli.js
+      - --deterministic
+      - --db=/ganache_data
+      - --mnemonic
+      - 'minimum symptom minute gloom tragic situate silver mechanic salad amused elite beef'
+      - --networkId
+      - '5777'
+      - --hostname
+      - '0.0.0.0'
+#      - --debug
+      - --allowUnlimitedContractSize
+
 volumes:
   abi:
 networks:
